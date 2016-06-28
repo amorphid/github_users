@@ -1,0 +1,2 @@
+defmodule GithubUsers do
+end
