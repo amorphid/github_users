@@ -15,8 +15,13 @@ defmodule GithubUsersTest do
   #   assert user[:website] == "http://sergiotapia.me"
   # end
 
+  # test "scrapes an organization" do
+  #   { :ok, users } = GithubUsers.search("https://github.com/orgs/elixir-lang/people")
+  #   assert true == true
+  # end
+
   test "scrapes an organization" do
-    { :ok, users } = GithubUsers.search("https://github.com/orgs/rails/people")
+    { :ok, users } = GithubUsers.search("https://github.com/search?q=elixir&type=Users&utf8=%E2%9C%93")
     assert true == true
   end
 
