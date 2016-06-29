@@ -6,7 +6,7 @@ defmodule GithubUsers do
       url == "" -> { :error, "Can't search for an empty string" }
       String.contains?(url, "/orgs/") -> scrape_organization(url)
       String.contains?(url, "/search?") -> scrape_search(url)
-      String.contains?(url, "/stargazers") -> {:ok, %{github_id: "sergiotapiaz"}}
+      String.contains?(url, "/stargazers") -> scrape_stargazers(url)
       true -> scrape_profile(url)
     end
   end
@@ -41,7 +41,7 @@ defmodule GithubUsers do
                                           |> Enum.map(fn(x) -> "https://github.com#{x}" end)
                                           |> Enum.map(fn(x) -> scrape_profile(x) end )
       {:ok, %HTTPoison.Response{status_code: 404}} ->
-        {:error, "User profile not found"}
+        {:error, "Organization page not found"}
       {:error, %HTTPoison.Error{reason: reason}} ->
         {:error, reason}
     end
@@ -56,9 +56,21 @@ defmodule GithubUsers do
                                                  |> Enum.reject(fn(x) -> String.contains?(x, "mailto:") end)
                                                  |> Enum.map(fn(x) -> "https://github.com#{x}" end)
                                                  |> Enum.map(fn(x) -> scrape_profile(x) end )
-                                                 |> Enum.reject(fn(x) -> x == nil end)
       {:ok, %HTTPoison.Response{status_code: 404}} ->
-        {:error, "User profile not found"}
+        {:error, "Search page not found"}
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, reason}
+    end
+  end
+
+  defp scrape_stargazers(url) do
+    case HTTPoison.get(url) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        Floki.find(body, "h3.follow-list-name span a") |> Floki.attribute("href")
+                                                       |> Enum.map(fn(x) -> "https://github.com#{x}" end)
+                                                       |> Enum.map(fn(x) -> scrape_profile(x) end )
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        {:error, "Stargazer page not found"}
       {:error, %HTTPoison.Error{reason: reason}} ->
         {:error, reason}
     end

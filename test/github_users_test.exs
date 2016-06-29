@@ -25,6 +25,11 @@ defmodule GithubUsersTest do
     assert is_list(users) == true
   end
 
+  test "scrapes a search" do
+    users = GithubUsers.search("https://github.com/elixir-lang/elixir/stargazers")
+    assert is_list(users) == true
+  end
+
   test "return error on empty string" do
     { :error, reason} = GithubUsers.search("")
     assert reason == "Can't search for an empty string"
