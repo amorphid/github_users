@@ -1,6 +1,6 @@
 defmodule GithubUsers do
   require Logger
-  
+
   def search(url) do
     cond do
       url == "" -> { :error, "Can't search for an empty string" }
